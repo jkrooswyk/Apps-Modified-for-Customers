@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- Copyright (c) 2010  Rally Software Development Corp.  All rights reserved -->
+<html>
+    <head>
+        <title>Attachment Hunter</title>
+        <meta name="Version" content="1.0" />
+        <meta name="Vendor" content="Rally Software" />
+        <meta name="Author" content="Joel K" />
+        <script src='/apps/1.31/sdk.js' type='text/javascript'>
+        </script>
+        <script type="text/javascript">
+            
+            // Attachment Hunter identifies any artifact that has an attachment
+            
+            // declare global variables
+            var gTable;
+            
+            function tableExample(){
+            
+                var rallyDataSource = new rally.sdk.data.RallyDataSource('__WORKSPACE_OID__', '__PROJECT_OID__', '__PROJECT_SCOPING_UP__', '__PROJECT_SCOPING_DOWN__');
+                
+                function init(){
+                
+                    var queryArray = [];
+                                        
+                    if (gTable != null) 
+                        gTable.destroy();
+                    
+                    dojo.empty(dojo.byId('table_output'));
+                    
+                    // setup story query
+                    queryArray[0] = {
+                        key: 'stories',
+                        type: 'HierarchicalRequirement',
+                        //query: '(Release != "")',
+                        fetch: 'FormattedID,Name,Attachment,Attachments'
+                    };
+                    
+                    queryArray[1] = {
+                        key: 'defects',
+                        type: 'Defects',
+                        //query: '(Release != "")',
+                        fetch: 'FormattedID,Name,Attachment,Attachments'
+                    };
+                    
+                    queryArray[2] = {
+                        key: 'tasks',
+                        type: 'Tasks',
+                        //query: '(Release != "")',
+                        fetch: 'FormattedID,Name,Attachment,Attachments'
+                    };
+                    
+                    // execute query
+                    rallyDataSource.findAll(queryArray, populateTable);
+                    
+                }
+                
+                function populateTable(results){
+                console.log(results);   
+                             
+                    var nbrStories;
+                    var nbrDefects;
+                    var nbrTasks;
+                    var tableDiv;
+                    var RowInfo;
+                    var foo;
+                    
+                    // create the output table
+                    tableDiv = document.getElementById('table_output');
+                    tableConfig = {
+                        columns: [{
+                            key: 'FormattedID' //,
+                            //width: "10%"
+                        }, {
+                            key: 'Name' //,
+                            //width: "10%"
+                        }]
+                    };
+                    
+                    gTable = new rally.sdk.ui.Table(tableConfig);
+                    
+                    // get # of artifacts
+                    nbrStories = results.stories.length;
+                    nbrDefects = results.defects.length;
+                    nbrTasks = results.tasks.length;
+                    
+                    // loop through each story
+                    for (var storyNdx = 0; storyNdx < nbrStories; storyNdx++) {
+                       
+                       var attached = results.stories[storyNdx].Attachments;
+                       attached = attached.length;
+                       if (attached != 0) {
+                        RowInfo = {
+                        'FormattedID': results.stories[storyNdx].FormattedID,
+                        'Name': results.stories[storyNdx].Name
+                        };
+                                       
+                        gTable.addRow(RowInfo);
+                       }
+                                            
+                    };
+                    // end for each story
+
+                    // loop through each defect
+                    for (var storyNdx = 0; storyNdx < nbrDefects; storyNdx++) {
+                       
+                       var attached = results.defects[storyNdx].Attachments;
+                       attached = attached.length;
+                       if (attached != 0) {
+                        RowInfo = {
+                        'FormattedID': results.defects[storyNdx].FormattedID,
+                        'Name': results.defects[storyNdx].Name
+                        };
+                                       
+                        gTable.addRow(RowInfo);
+                       }
+                                            
+                    };
+                    // end for each defect
+                    
+                    // loop through each task
+                    for (var storyNdx = 0; storyNdx < nbrTasks; storyNdx++) {
+                       
+                       var attached = results.tasks[storyNdx].Attachments;
+                       attached = attached.length;
+                       if (attached != 0) {
+                        RowInfo = {
+                        'FormattedID': results.tasks[storyNdx].FormattedID,
+                        'Name': results.tasks[storyNdx].Name
+                        };
+                                       
+                        gTable.addRow(RowInfo);
+                       }
+                                            
+                    };
+                    // end for each task
+                    
+                    // display the populated table
+                    gTable.display(tableDiv);
+                    
+                };
+                // end function
+                
+                // call querying function
+                init();
+                
+            }
+            
+            rally.addOnLoad(tableExample);
+        </script>
+    </head>
+    <body>
+        <div id="table_output">
+        </div>
+    </body>
+</html>
